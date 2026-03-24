@@ -5,17 +5,18 @@ struct Position {int x, y;};
 enum Direction {UP, DOWN, LEFT, RIGHT};
 
 int main() {
-    Position head = {5, 1};
+    Position head = {6, 2},
+        leftEye = {10, 3}, rightEye = {10, 12};
     std::vector<Position> snake = {
-        {5, 1}, 
-        {4, 1}, 
-        {3, 1}, 
-        {2, 1}, 
-        {1, 1}
+        {6, 2}, 
+        {5, 2}, 
+        {4, 2}, 
+        {3, 2}, 
+        {2, 2}
     };
     Direction prevDir = RIGHT, currentDir = RIGHT;
     int cellSize = 20, screenWidth = 800, screenHeight = 600,
-        framesRate = 60, framesCounter = 0, snakeSpeed = framesRate / 4;
+        framesRate = 60, framesCounter = 0, snakeSpeed = framesRate / 6;
 
     InitWindow(screenWidth, screenHeight, "Snake Game");
     SetTargetFPS(framesRate);
@@ -33,18 +34,26 @@ int main() {
             switch(currentDir) {
                 case UP:
                     head.y--; 
+                    leftEye = {3, 5};
+                    rightEye = {12, 5};
                     break;
 
                 case DOWN:
                     head.y++; 
+                    leftEye = {3, 10};
+                    rightEye = {12, 10};
                     break;
 
                 case LEFT:
                     head.x--; 
+                    leftEye = {5, 3};
+                    rightEye = {5, 12};
                     break;
 
                 case RIGHT:
                     head.x++; 
+                    leftEye = {10, 3};
+                    rightEye = {10, 12};
                     break;
             }
 
@@ -55,24 +64,42 @@ int main() {
         }
 
         BeginDrawing();
-        ClearBackground({155, 155, 155, 255});
+        ClearBackground({150, 150, 150, 255});
 
-        for(int x = 0; x < screenWidth / cellSize; x++) {
-            for(int y = 0; y < screenHeight / cellSize; y++) {
-                if(x % 2 && y % 2) {
-                    DrawRectangle(
-                        x * cellSize, 
-                        y * cellSize, 
-                        cellSize, cellSize, 
-                        {185, 185, 185, 255}
-                    );
-                } else if(x % 2 == 0 && y % 2 == 0) {
-                    DrawRectangle(
-                        x * cellSize, 
-                        y * cellSize, 
-                        cellSize, cellSize, 
-                        {185, 185, 185, 255}
-                    );
+        for(int x = 2; x < (screenWidth / cellSize) - 2; x++) {
+            for(int y = 2; y < (screenHeight / cellSize) - 2; y++) {
+                if(x % 2) {
+                    if(y % 2) {
+                        DrawRectangle(
+                            x * cellSize, 
+                            y * cellSize, 
+                            cellSize, cellSize, 
+                            {150, 195, 65, 255}
+                        );
+                    } else {
+                        DrawRectangle(
+                            x * cellSize, 
+                            y * cellSize, 
+                            cellSize, cellSize, 
+                            {170, 215, 81, 255}
+                        );
+                    }
+                } else if(x % 2 == 0) {
+                    if(y % 2 == 0) {
+                        DrawRectangle(
+                            x * cellSize, 
+                            y * cellSize, 
+                            cellSize, cellSize, 
+                            {150, 195, 65, 255}
+                        );
+                    } else {
+                        DrawRectangle(
+                            x * cellSize, 
+                            y * cellSize, 
+                            cellSize, cellSize, 
+                            {170, 215, 81, 255}
+                        );
+                    }
                 }
             }
         }
@@ -85,11 +112,24 @@ int main() {
                 cellSize, cellSize, 
                 {0, 121, 241, (unsigned char)(int)light}
             );
+
+            if(i == 0) {
+                DrawRectangle(
+                    snake[0].x * cellSize + leftEye.x, 
+                    snake[0].y * cellSize + leftEye.y, 
+                    5, 5, RAYWHITE
+                );
+                DrawRectangle(
+                    snake[0].x * cellSize + rightEye.x, 
+                    snake[0].y * cellSize + rightEye.y, 
+                    5, 5, RAYWHITE
+                );
+            }
         }
 
         EndDrawing();
     }
     CloseWindow();
-    
+
     return 0;
 }
