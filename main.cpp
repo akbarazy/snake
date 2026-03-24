@@ -5,8 +5,6 @@ struct Position {int x, y;};
 enum Direction {UP, DOWN, LEFT, RIGHT};
 
 int main() {
-    Position head = {6, 2},
-        leftEye = {10, 3}, rightEye = {10, 12};
     std::vector<Position> snake = {
         {6, 2}, 
         {5, 2}, 
@@ -14,23 +12,24 @@ int main() {
         {3, 2}, 
         {2, 2}
     };
+    Position head = snake[0],
+        leftEye = {10, 3}, rightEye = {10, 12};
     Direction prevDir = RIGHT, currentDir = RIGHT;
     int cellSize = 20, screenWidth = 800, screenHeight = 600,
-        framesRate = 60, framesCounter = 0, snakeSpeed = framesRate / 6;
+        framesRate = 60, framesCounter = 0, snakeSpeed = framesRate / 5;
+    bool grow = false;
 
     InitWindow(screenWidth, screenHeight, "Snake Game");
     SetTargetFPS(framesRate);
 
     while(!WindowShouldClose()) {
+        if(IsKeyPressed(KEY_G)) grow = true;
         if(IsKeyPressed(KEY_UP) && prevDir != DOWN) currentDir = UP;
         if(IsKeyPressed(KEY_DOWN) && prevDir != UP) currentDir = DOWN;
         if(IsKeyPressed(KEY_LEFT) && prevDir != RIGHT) currentDir = LEFT;
         if(IsKeyPressed(KEY_RIGHT) && prevDir != LEFT) currentDir = RIGHT;
 
         if(framesCounter == snakeSpeed) {
-            framesCounter = 0;
-            prevDir = currentDir;
-
             switch(currentDir) {
                 case UP:
                     head.y--; 
@@ -58,7 +57,11 @@ int main() {
             }
 
             snake.insert(snake.begin(), head);
-            snake.pop_back();
+            if(!grow) snake.pop_back();
+
+            framesCounter = 0;
+            prevDir = currentDir;
+            grow = false;
         } else {
             framesCounter++;
         }
@@ -105,7 +108,7 @@ int main() {
         }
         
         for(int i = 0; i < snake.size(); i++) {
-            int light = 255 - i * (255 / snake.size());
+            int light = 255 - i * ((255 - 75) / snake.size());
             DrawRectangle(
                 snake[i].x * cellSize, 
                 snake[i].y * cellSize, 
