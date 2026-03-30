@@ -1,23 +1,22 @@
-#ifndef SNAKE_H
-#define SNAKE_H
-
-#include <vector>
+#pragma once
 #include "raylib.h"
-
-enum Direction { UP, DOWN, LEFT, RIGHT };
+#include <vector>
 
 class Snake {
-public:
+private:
     std::vector<Vector2> body;
-    Direction direction;
-    bool shouldGrow;
+    Vector2 direction;
 
+public:
     Snake();
 
     void Move();
     void Grow();
-    bool CheckSelfCollision();
-    void Reset();
-};
+    void Draw();
 
-#endif
+    void SetDirection(Vector2 dir);
+    Vector2 GetHead();
+
+    bool CheckSelfCollision();
+    bool CheckWallCollision();
+};

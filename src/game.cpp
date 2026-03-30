@@ -1,103 +1,144 @@
 #include "../headers/game.h"
-
-const int CELL_SIZE = 25;
-const int GRID_SIZE = 20;
+#include <string>
 
 Game::Game() {
-    // InitAudioDevice();
+    state = MENU;
+    difficulty = MEDIUM;
+    score = 0;
+    menuIndex = 0;
 
-    // eatSound = LoadSound("assets/eat.wav");
-    // gameOverSound = LoadSound("assets/gameover.wav");
+    highScore = HighScore::Load();
 
-    moveDelay = 0.15f;
-    moveTimer = 0.0f;
+    eatSound = LoadSound("assets/eat.wav");
+    gameOverSound = LoadSound("assets/gameover.wav");
 
-    Reset();
+    SetDifficulty(MEDIUM);
+}
+
+void Game::SetDifficulty(Difficulty diff) {
+    difficulty = diff;
+
+    if (diff == EASY) moveDelay = 0.2f;
+    else if (diff == MEDIUM) moveDelay = 0.12f;
+    else moveDelay = 0.08f;
 }
 
 void Game::Reset() {
-    snake.Reset();
+    snake = Snake();
     food.GeneratePosition();
     score = 0;
-    state = PLAYING;
+    moveTimer = 0;
+}
+
+void Game::ChangeState(GameState newState) {
+    state = newState;
 }
 
 void Game::HandleInput() {
-    if (IsKeyPressed(KEY_P)) {
-        if (state == PLAYING) state = PAUSED;
-        else if (state == PAUSED) state = PLAYING;
+    if (state == MENU) {
+        if (IsKeyPressed(KEY_DOWN)) menuIndex = (menuIndex + 1) % 2;
+        if (IsKeyPressed(KEY_UP)) menuIndex = (menuIndex - 1 + 2) % 2;
+
+        if (IsKeyPressed(KEY_ENTER)) {
+            if (menuIndex == 0) {
+                Reset();
+                ChangeState(PLAYING);
+            } else {
+                CloseWindow();
+            }
+        }
+
+        if (IsKeyPressed(KEY_ONE)) SetDifficulty(EASY);
+        if (IsKeyPressed(KEY_TWO)) SetDifficulty(MEDIUM);
+        if (IsKeyPressed(KEY_THREE)) SetDifficulty(HARD);
     }
 
-    if (IsKeyPressed(KEY_R) && state == GAME_OVER) {
-        Reset();
+    else if (state == PLAYING) {
+        if (IsKeyPressed(KEY_P)) ChangeState(PAUSED);
+
+        if (IsKeyPressed(KEY_UP)) snake.SetDirection({0,-1});
+        if (IsKeyPressed(KEY_DOWN)) snake.SetDirection({0,1});
+        if (IsKeyPressed(KEY_LEFT)) snake.SetDirection({-1,0});
+        if (IsKeyPressed(KEY_RIGHT)) snake.SetDirection({1,0});
     }
 
-    if (state != PLAYING) return;
+    else if (state == PAUSED) {
+        if (IsKeyPressed(KEY_P)) ChangeState(PLAYING);
+    }
 
-    if (IsKeyPressed(KEY_UP) && snake.direction != DOWN) snake.direction = UP;
-    if (IsKeyPressed(KEY_DOWN) && snake.direction != UP) snake.direction = DOWN;
-    if (IsKeyPressed(KEY_LEFT) && snake.direction != RIGHT) snake.direction = LEFT;
-    if (IsKeyPressed(KEY_RIGHT) && snake.direction != LEFT) snake.direction = RIGHT;
+    else if (state == GAMEOVER) {
+        if (IsKeyPressed(KEY_R)) {
+            Reset();
+            ChangeState(PLAYING);
+        }
+        if (IsKeyPressed(KEY_M)) ChangeState(MENU);
+    }
 }
 
 void Game::Update() {
     if (state != PLAYING) return;
 
     moveTimer += GetFrameTime();
+    if (moveTimer < moveDelay) return;
 
-    if (moveTimer >= moveDelay) {
-        moveTimer = 0.0f;
+    moveTimer = 0;
+    snake.Move();
 
-        snake.Move();
+    // makan
+    if (snake.GetHead().x == food.position.x &&
+    snake.GetHead().y == food.position.y) {
+        snake.Grow();
+        score++;
+        PlaySound(eatSound);
+        food.GeneratePosition();
+    }
 
-        // Collision with wall
-        Vector2 head = snake.body[0];
-        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-            state = GAME_OVER;
-            // PlaySound(gameOverSound);
+    // collision
+    if (snake.CheckSelfCollision() || snake.CheckWallCollision()) {
+        PlaySound(gameOverSound);
+        if (score > highScore) {
+            highScore = score;
+            HighScore::Save(highScore);
         }
-
-        // Self collision
-        if (snake.CheckSelfCollision()) {
-            state = GAME_OVER;
-            // PlaySound(gameOverSound);
-        }
-
-        // Eat food
-        if (head.x == food.position.x && head.y == food.position.y) {
-            snake.Grow();
-            food.GeneratePosition();
-            score += 10;
-            // PlaySound(eatSound);
-        }
+        ChangeState(GAMEOVER);
     }
 }
 
 void Game::Draw() {
-    BeginDrawing();
-    ClearBackground(BLACK);
+    if (state == MENU) {
+        DrawText("SNAKE GAME", 280, 100, 40, GREEN);
 
-    // Draw snake
-    for (auto segment : snake.body) {
-        DrawRectangle(segment.x * CELL_SIZE, segment.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
+        Color startColor = (menuIndex == 0) ? YELLOW : WHITE;
+        Color exitColor = (menuIndex == 1) ? YELLOW : WHITE;
+
+        DrawText("Start Game", 320, 250, 30, startColor);
+        DrawText("Exit", 350, 300, 30, exitColor);
+
+        DrawText("1: Easy  2: Medium  3: Hard", 230, 400, 20, GRAY);
+
+        std::string diffText;
+
+        if (difficulty == EASY) diffText = "Difficulty: EASY";
+        else if (difficulty == MEDIUM) diffText = "Difficulty: MEDIUM";
+        else diffText = "Difficulty: HARD";
+
+        DrawText(diffText.c_str(), 280, 450, 20, GREEN);
     }
 
-    // Draw food
-    DrawRectangle(food.position.x * CELL_SIZE, food.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, RED);
+    else if (state == PLAYING || state == PAUSED) {
+        snake.Draw();
+        food.Draw();
 
-    // UI Score
-    DrawText(TextFormat("Score: %d", score), 10, 10, 20, WHITE);
+        DrawText(("Score: " + std::to_string(score)).c_str(), 10, 10, 20, WHITE);
+        DrawText(("High: " + std::to_string(highScore)).c_str(), 10, 40, 20, GRAY);
 
-    // Pause
-    if (state == PAUSED) {
-        DrawText("PAUSED", 200, 200, 40, YELLOW);
+        if (state == PAUSED)
+            DrawText("PAUSED (P to resume)", 250, 300, 30, YELLOW);
     }
 
-    // Game Over UI
-    if (state == GAME_OVER) {
-        DrawText("GAME OVER", 180, 180, 40, RED);
-        DrawText("Press R to Restart", 150, 230, 20, WHITE);
+    else if (state == GAMEOVER) {
+        DrawText("GAME OVER", 280, 200, 40, RED);
+        DrawText(("Score: " + std::to_string(score)).c_str(), 300, 260, 25, WHITE);
+        DrawText("R: Restart  M: Menu", 260, 320, 20, GRAY);
     }
-
-    EndDrawing();
 }

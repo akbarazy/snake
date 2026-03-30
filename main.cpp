@@ -1,12 +1,9 @@
 #include "raylib.h"
 #include "headers/game.h"
 
-const int SCREEN_WIDTH = 500;
-const int SCREEN_HEIGHT = 500;
-
 int main() {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake Game");
-
+    InitWindow(800, 600, "Snake Game Advanced");
+    InitAudioDevice();
     SetTargetFPS(60);
 
     Game game;
@@ -14,9 +11,14 @@ int main() {
     while (!WindowShouldClose()) {
         game.HandleInput();
         game.Update();
+
+        BeginDrawing();
+        ClearBackground(BLACK);
         game.Draw();
+        EndDrawing();
     }
 
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }

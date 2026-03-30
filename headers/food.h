@@ -1,14 +1,10 @@
-#ifndef FOOD_H
-#define FOOD_H
-
+#pragma once
 #include "raylib.h"
 
 class Food {
 public:
     Vector2 position;
 
-    Food();
     void GeneratePosition();
+    void Draw();
 };
-
-#endif

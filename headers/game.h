@@ -1,32 +1,49 @@
-#ifndef GAME_H
-#define GAME_H
-
+#pragma once
 #include "snake.h"
 #include "food.h"
+#include "highscore.h"
 #include "raylib.h"
 
-enum GameState { PLAYING, PAUSED, GAME_OVER };
+enum GameState {
+    MENU,
+    PLAYING,
+    PAUSED,
+    GAMEOVER
+};
+
+enum Difficulty {
+    EASY,
+    MEDIUM,
+    HARD
+};
 
 class Game {
-public:
+private:
     Snake snake;
     Food food;
 
-    int score;
     GameState state;
+    Difficulty difficulty;
 
-    // Sound eatSound;
-    // Sound gameOverSound;
+    int score;
+    int highScore;
 
     float moveTimer;
     float moveDelay;
 
+    int menuIndex;
+
+    Sound eatSound;
+    Sound gameOverSound;
+
+public:
     Game();
 
+    void HandleInput();
     void Update();
     void Draw();
-    void HandleInput();
-    void Reset();
-};
 
-#endif
+    void Reset();
+    void ChangeState(GameState newState);
+    void SetDifficulty(Difficulty diff);
+};
