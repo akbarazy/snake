@@ -1,66 +1,61 @@
 #include "../headers/snake.h"
-#include "raylib.h"
 
 Snake::Snake() {
-    body = {{15,15},{14,15},{13,15},{12,15},{11,15}};
-    currentDir = RIGHT;
-    prevDir = RIGHT;
-    grow = false;
+    body = { {5, 5}, {4, 5}, {3, 5} };
+    direction = RIGHT;
+    growNext = false;
 }
 
-void Snake::HandleInput() {
-    if(IsKeyPressed(KEY_UP) && prevDir != DOWN) currentDir = UP;
-    if(IsKeyPressed(KEY_DOWN) && prevDir != UP) currentDir = DOWN;
-    if(IsKeyPressed(KEY_LEFT) && prevDir != RIGHT) currentDir = LEFT;
-    if(IsKeyPressed(KEY_RIGHT) && prevDir != LEFT) currentDir = RIGHT;
-}
+void Snake::Move() {
+    Vector2 head = body[0];
 
-void Snake::Update() {
-    Position head = body[0];
-
-    switch(currentDir) {
-        case UP: head.y--; break;
-        case DOWN: head.y++; break;
-        case LEFT: head.x--; break;
-        case RIGHT: head.x++; break;
-    }
+    if (direction == UP) head.y -= 1;
+    if (direction == DOWN) head.y += 1;
+    if (direction == LEFT) head.x -= 1;
+    if (direction == RIGHT) head.x += 1;
 
     body.insert(body.begin(), head);
 
-    if(!grow) body.pop_back();
-    grow = false;
-
-    prevDir = currentDir;
-}
-
-void Snake::Draw(int cellSize) {
-    for(int i = body.size() - 1; i >= 0; i--) {
-        DrawRectangle(
-            body[i].x * cellSize,
-            body[i].y * cellSize,
-            cellSize,
-            cellSize,
-            BLUE
-        );
+    if (!growNext) {
+        body.pop_back();
+    } else {
+        growNext = false;
     }
 }
 
 void Snake::Grow() {
-    grow = true;
+    growNext = true;
+}
+
+void Snake::Draw() {
+    for (auto segment : body) {
+        DrawRectangle(segment.x * 20, segment.y * 20, 20, 20, GREEN);
+    }
+}
+
+void Snake::SetDirection(Direction dir) {
+    direction = dir;
 }
 
 bool Snake::CheckSelfCollision() {
-    Position head = body[0];
-    for(size_t i = 1; i < body.size(); i++) {
-        if(head.x == body[i].x && head.y == body[i].y) return true;
+    Vector2 head = body[0];
+    for (int i = 1; i < body.size(); i++) {
+        if (body[i].x == head.x && body[i].y == head.y) {
+            return true;
+        }
     }
     return false;
 }
 
-Position Snake::GetHead() {
+bool Snake::CheckWallCollision(int width, int height) {
+    Vector2 head = body[0];
+    return (head.x < 0 || head.y < 0 || head.x >= width || head.y >= height);
+}
+
+Vector2 Snake::GetHeadPosition() {
     return body[0];
 }
 
-const std::vector<Position>& Snake::GetBody() {
+std::vector<Vector2> Snake::GetBody() {
     return body;
 }

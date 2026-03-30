@@ -2,22 +2,25 @@
 #include "./headers/game.h"
 
 int main() {
-    int screenWidth = 800;
-    int screenHeight = 600;
-    int cellSize = 20;
+    const int screenWidth = 600;
+    const int screenHeight = 600;
 
-    InitWindow(screenWidth, screenHeight, "Snake Game");
+    InitWindow(screenWidth, screenHeight, "Snake Game OOP");
     SetTargetFPS(60);
 
-    Game game(screenWidth, screenHeight, cellSize);
+    Game game;
 
-    while(!WindowShouldClose()) {
+    while (!WindowShouldClose()) {
         game.Update();
 
         BeginDrawing();
+        ClearBackground(DARKGREEN);
+
         game.Draw();
+
         EndDrawing();
     }
 
     CloseWindow();
+    return 0;
 }

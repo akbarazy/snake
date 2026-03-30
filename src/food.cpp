@@ -1,37 +1,18 @@
 #include "../headers/food.h"
-#include "raylib.h"
-#include <cstdlib>
 
-bool isFree(const std::vector<Position>& snake, Position p) {
-    for(const auto& s : snake) {
-        if(s.x == p.x && s.y == p.y) return false;
-    }
-    return true;
+Food::Food() {
+    position = {10, 10};
 }
 
-void Food::Spawn(const std::vector<Position>& snake, int gridW, int gridH) {
-    while(true) {
-        Position p = {
-            rand() % (gridW - 4) + 2,
-            rand() % (gridH - 4) + 2
-        };
-
-        if(isFree(snake, p)) {
-            pos = p;
-            break;
-        }
-    }
+void Food::GeneratePosition(int width, int height) {
+    position.x = GetRandomValue(0, width - 1);
+    position.y = GetRandomValue(0, height - 1);
 }
 
-void Food::Draw(int cellSize) {
-    DrawCircle(
-        pos.x * cellSize + cellSize/2,
-        pos.y * cellSize + cellSize/2,
-        cellSize/2,
-        RED
-    );
+void Food::Draw() {
+    DrawRectangle(position.x * 20, position.y * 20, 20, 20, RED);
 }
 
-Position Food::GetPosition() {
-    return pos;
+Vector2 Food::GetPosition() {
+    return position;
 }

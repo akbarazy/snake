@@ -1,13 +1,18 @@
-#pragma once
-#include <vector>
-#include "snake.h"
+#ifndef FOOD_H
+#define FOOD_H
+
+#include "raylib.h"
 
 class Food {
 private:
-    Position pos;
+    Vector2 position;
 
 public:
-    void Spawn(const std::vector<Position>& snake, int gridW, int gridH);
-    void Draw(int cellSize);
-    Position GetPosition();
+    Food();
+
+    void GeneratePosition(int width, int height);
+    void Draw();
+    Vector2 GetPosition();
 };
+
+#endif

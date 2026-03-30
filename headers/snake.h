@@ -1,25 +1,28 @@
-#pragma once
-#include <vector>
+#ifndef SNAKE_H
+#define SNAKE_H
 
-struct Position { int x, y; };
+#include <vector>
+#include "raylib.h"
+
 enum Direction { UP, DOWN, LEFT, RIGHT };
 
 class Snake {
 private:
-    std::vector<Position> body;
-    Direction currentDir;
-    Direction prevDir;
-    bool grow;
+    std::vector<Vector2> body;
+    Direction direction;
+    bool growNext;
 
 public:
     Snake();
 
-    void HandleInput();
-    void Update();
-    void Draw(int cellSize);
-
+    void Move();
     void Grow();
+    void Draw();
+    void SetDirection(Direction dir);
     bool CheckSelfCollision();
-    Position GetHead();
-    const std::vector<Position>& GetBody();
+    bool CheckWallCollision(int width, int height);
+    Vector2 GetHeadPosition();
+    std::vector<Vector2> GetBody();
 };
+
+#endif

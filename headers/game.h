@@ -1,24 +1,26 @@
-#pragma once
-#include "snake.h"
-#include "food.h"
+#ifndef GAME_H
+#define GAME_H
+
+#include "Snake.h"
+#include "Food.h"
 
 class Game {
 private:
     Snake snake;
     Food food;
-
-    int gridW, gridH;
-    int cellSize;
-
-    int frameCounter;
-    int speed;
+    int score;
     bool gameOver;
+    float timer;
+
+    const int gridWidth = 30;
+    const int gridHeight = 30;
 
 public:
-    Game(int screenW, int screenH, int cell);
+    Game();
 
     void Update();
     void Draw();
-
-    bool IsGameOver();
+    void Reset();
 };
+
+#endif

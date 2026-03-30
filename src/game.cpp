@@ -1,66 +1,61 @@
 #include "../headers/game.h"
 #include "raylib.h"
 
-Game::Game(int screenW, int screenH, int cell) {
-    cellSize = cell;
-    gridW = screenW / cell;
-    gridH = screenH / cell;
+Game::Game() {
+    Reset();
+}
 
-    frameCounter = 0;
-    speed = 12;
+void Game::Reset() {
+    snake = Snake();
+    food.GeneratePosition(gridWidth, gridHeight);
+    score = 0;
     gameOver = false;
-
-    food.Spawn(snake.GetBody(), gridW, gridH);
+    timer = 0;
 }
 
 void Game::Update() {
-    if(gameOver) return;
+    if (gameOver) {
+        if (IsKeyPressed(KEY_R)) {
+            Reset();
+        }
+        return;
+    }
 
-    snake.HandleInput();
+    // Input
+    if (IsKeyPressed(KEY_UP)) snake.SetDirection(UP);
+    if (IsKeyPressed(KEY_DOWN)) snake.SetDirection(DOWN);
+    if (IsKeyPressed(KEY_LEFT)) snake.SetDirection(LEFT);
+    if (IsKeyPressed(KEY_RIGHT)) snake.SetDirection(RIGHT);
 
-    if(frameCounter >= speed) {
-        snake.Update();
+    // Movement timing (biar tidak terlalu cepat)
+    timer += GetFrameTime();
+    if (timer >= 0.15f) {
+        snake.Move();
+        timer = 0;
 
-        Position head = snake.GetHead();
-
-        if(head.x < 2 || head.x >= gridW-2 || head.y < 2 || head.y >= gridH-2)
-            gameOver = true;
-
-        if(snake.CheckSelfCollision())
-            gameOver = true;
-
-        if(head.x == food.GetPosition().x && head.y == food.GetPosition().y) {
+        // Makan makanan
+        if (snake.GetHeadPosition().x == food.GetPosition().x &&
+            snake.GetHeadPosition().y == food.GetPosition().y) {
             snake.Grow();
-            food.Spawn(snake.GetBody(), gridW, gridH);
+            food.GeneratePosition(gridWidth, gridHeight);
+            score++;
         }
 
-        frameCounter = 0;
-    } else {
-        frameCounter++;
+        // Collision
+        if (snake.CheckSelfCollision() || snake.CheckWallCollision(gridWidth, gridHeight)) {
+            gameOver = true;
+        }
     }
 }
 
 void Game::Draw() {
-    ClearBackground({150,150,150,255});
+    snake.Draw();
+    food.Draw();
 
-    for(int x=2; x<gridW-2; x++) {
-        for(int y=2; y<gridH-2; y++) {
-            Color c = ((x+y)%2==0) ?
-                Color{150,195,65,255} :
-                Color{170,215,81,255};
+    DrawText(TextFormat("Score: %d", score), 10, 10, 20, WHITE);
 
-            DrawRectangle(x*cellSize,y*cellSize,cellSize,cellSize,c);
-        }
+    if (gameOver) {
+        DrawText("GAME OVER", 200, 250, 30, RED);
+        DrawText("Press R to Restart", 180, 300, 20, WHITE);
     }
-
-    snake.Draw(cellSize);
-    food.Draw(cellSize);
-
-    if(gameOver) {
-        DrawText("GAME OVER", 300, 300, 30, RED);
-    }
-}
-
-bool Game::IsGameOver() {
-    return gameOver;
 }
