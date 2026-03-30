@@ -1,25 +1,31 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Snake.h"
-#include "Food.h"
+#include "snake.h"
+#include "food.h"
+#include "raylib.h"
+
+enum GameState { PLAYING, PAUSED, GAME_OVER };
 
 class Game {
-private:
+public:
     Snake snake;
     Food food;
+
     int score;
-    bool gameOver;
-    float timer;
+    GameState state;
 
-    const int gridWidth = 30;
-    const int gridHeight = 30;
+    // Sound eatSound;
+    // Sound gameOverSound;
 
-public:
+    float moveTimer;
+    float moveDelay;
+
     Game();
 
     void Update();
     void Draw();
+    void HandleInput();
     void Reset();
 };
 

@@ -4,15 +4,11 @@
 #include "raylib.h"
 
 class Food {
-private:
+public:
     Vector2 position;
 
-public:
     Food();
-
-    void GeneratePosition(int width, int height);
-    void Draw();
-    Vector2 GetPosition();
+    void GeneratePosition();
 };
 
 #endif

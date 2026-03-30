@@ -7,22 +7,17 @@
 enum Direction { UP, DOWN, LEFT, RIGHT };
 
 class Snake {
-private:
+public:
     std::vector<Vector2> body;
     Direction direction;
-    bool growNext;
+    bool shouldGrow;
 
-public:
     Snake();
 
     void Move();
     void Grow();
-    void Draw();
-    void SetDirection(Direction dir);
     bool CheckSelfCollision();
-    bool CheckWallCollision(int width, int height);
-    Vector2 GetHeadPosition();
-    std::vector<Vector2> GetBody();
+    void Reset();
 };
 
 #endif

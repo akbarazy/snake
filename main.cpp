@@ -1,24 +1,20 @@
 #include "raylib.h"
-#include "./headers/game.h"
+#include "headers/game.h"
+
+const int SCREEN_WIDTH = 500;
+const int SCREEN_HEIGHT = 500;
 
 int main() {
-    const int screenWidth = 600;
-    const int screenHeight = 600;
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake Game");
 
-    InitWindow(screenWidth, screenHeight, "Snake Game OOP");
     SetTargetFPS(60);
 
     Game game;
 
     while (!WindowShouldClose()) {
+        game.HandleInput();
         game.Update();
-
-        BeginDrawing();
-        ClearBackground(DARKGREEN);
-
         game.Draw();
-
-        EndDrawing();
     }
 
     CloseWindow();

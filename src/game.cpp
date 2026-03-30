@@ -1,61 +1,103 @@
 #include "../headers/game.h"
-#include "raylib.h"
+
+const int CELL_SIZE = 25;
+const int GRID_SIZE = 20;
 
 Game::Game() {
+    // InitAudioDevice();
+
+    // eatSound = LoadSound("assets/eat.wav");
+    // gameOverSound = LoadSound("assets/gameover.wav");
+
+    moveDelay = 0.15f;
+    moveTimer = 0.0f;
+
     Reset();
 }
 
 void Game::Reset() {
-    snake = Snake();
-    food.GeneratePosition(gridWidth, gridHeight);
+    snake.Reset();
+    food.GeneratePosition();
     score = 0;
-    gameOver = false;
-    timer = 0;
+    state = PLAYING;
+}
+
+void Game::HandleInput() {
+    if (IsKeyPressed(KEY_P)) {
+        if (state == PLAYING) state = PAUSED;
+        else if (state == PAUSED) state = PLAYING;
+    }
+
+    if (IsKeyPressed(KEY_R) && state == GAME_OVER) {
+        Reset();
+    }
+
+    if (state != PLAYING) return;
+
+    if (IsKeyPressed(KEY_UP) && snake.direction != DOWN) snake.direction = UP;
+    if (IsKeyPressed(KEY_DOWN) && snake.direction != UP) snake.direction = DOWN;
+    if (IsKeyPressed(KEY_LEFT) && snake.direction != RIGHT) snake.direction = LEFT;
+    if (IsKeyPressed(KEY_RIGHT) && snake.direction != LEFT) snake.direction = RIGHT;
 }
 
 void Game::Update() {
-    if (gameOver) {
-        if (IsKeyPressed(KEY_R)) {
-            Reset();
-        }
-        return;
-    }
+    if (state != PLAYING) return;
 
-    // Input
-    if (IsKeyPressed(KEY_UP)) snake.SetDirection(UP);
-    if (IsKeyPressed(KEY_DOWN)) snake.SetDirection(DOWN);
-    if (IsKeyPressed(KEY_LEFT)) snake.SetDirection(LEFT);
-    if (IsKeyPressed(KEY_RIGHT)) snake.SetDirection(RIGHT);
+    moveTimer += GetFrameTime();
 
-    // Movement timing (biar tidak terlalu cepat)
-    timer += GetFrameTime();
-    if (timer >= 0.15f) {
+    if (moveTimer >= moveDelay) {
+        moveTimer = 0.0f;
+
         snake.Move();
-        timer = 0;
 
-        // Makan makanan
-        if (snake.GetHeadPosition().x == food.GetPosition().x &&
-            snake.GetHeadPosition().y == food.GetPosition().y) {
-            snake.Grow();
-            food.GeneratePosition(gridWidth, gridHeight);
-            score++;
+        // Collision with wall
+        Vector2 head = snake.body[0];
+        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+            state = GAME_OVER;
+            // PlaySound(gameOverSound);
         }
 
-        // Collision
-        if (snake.CheckSelfCollision() || snake.CheckWallCollision(gridWidth, gridHeight)) {
-            gameOver = true;
+        // Self collision
+        if (snake.CheckSelfCollision()) {
+            state = GAME_OVER;
+            // PlaySound(gameOverSound);
+        }
+
+        // Eat food
+        if (head.x == food.position.x && head.y == food.position.y) {
+            snake.Grow();
+            food.GeneratePosition();
+            score += 10;
+            // PlaySound(eatSound);
         }
     }
 }
 
 void Game::Draw() {
-    snake.Draw();
-    food.Draw();
+    BeginDrawing();
+    ClearBackground(BLACK);
 
+    // Draw snake
+    for (auto segment : snake.body) {
+        DrawRectangle(segment.x * CELL_SIZE, segment.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
+    }
+
+    // Draw food
+    DrawRectangle(food.position.x * CELL_SIZE, food.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, RED);
+
+    // UI Score
     DrawText(TextFormat("Score: %d", score), 10, 10, 20, WHITE);
 
-    if (gameOver) {
-        DrawText("GAME OVER", 200, 250, 30, RED);
-        DrawText("Press R to Restart", 180, 300, 20, WHITE);
+    // Pause
+    if (state == PAUSED) {
+        DrawText("PAUSED", 200, 200, 40, YELLOW);
     }
+
+    // Game Over UI
+    if (state == GAME_OVER) {
+        DrawText("GAME OVER", 180, 180, 40, RED);
+        DrawText("Press R to Restart", 150, 230, 20, WHITE);
+    }
+
+    EndDrawing();
 }
