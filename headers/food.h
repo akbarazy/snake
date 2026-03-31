@@ -4,7 +4,6 @@
 class Food {
 public:
     Vector2 position;
-
     void GeneratePosition();
     void Draw();
 };

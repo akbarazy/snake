@@ -2,24 +2,21 @@
 #include <string>
 
 Game::Game() {
-    state = MENU;
+    gameState = MENU;
     difficulty = MEDIUM;
     score = 0;
     menuIndex = 0;
-
     highScore = HighScore::Load();
-
     eatSound = LoadSound("assets/eat.wav");
     gameOverSound = LoadSound("assets/gameover.wav");
-
     SetDifficulty(MEDIUM);
 }
 
-void Game::SetDifficulty(Difficulty diff) {
-    difficulty = diff;
+void Game::SetDifficulty(Difficulty newDifficulty) {
+    difficulty = newDifficulty;
 
-    if (diff == EASY) moveDelay = 0.2f;
-    else if (diff == MEDIUM) moveDelay = 0.12f;
+    if (newDifficulty == EASY) moveDelay = 0.2f;
+    else if (newDifficulty == MEDIUM) moveDelay = 0.12f;
     else moveDelay = 0.08f;
 }
 
@@ -30,19 +27,19 @@ void Game::Reset() {
     moveTimer = 0;
 }
 
-void Game::ChangeState(GameState newState) {
-    state = newState;
+void Game::setGameState(GameState newGameState) {
+    gameState = newGameState;
 }
 
 void Game::HandleInput() {
-    if (state == MENU) {
+    if (gameState == MENU) {
         if (IsKeyPressed(KEY_DOWN)) menuIndex = (menuIndex + 1) % 2;
         if (IsKeyPressed(KEY_UP)) menuIndex = (menuIndex - 1 + 2) % 2;
 
         if (IsKeyPressed(KEY_ENTER)) {
             if (menuIndex == 0) {
                 Reset();
-                ChangeState(PLAYING);
+                setGameState(PLAYING);
             } else {
                 CloseWindow();
             }
@@ -53,8 +50,8 @@ void Game::HandleInput() {
         if (IsKeyPressed(KEY_THREE)) SetDifficulty(HARD);
     }
 
-    else if (state == PLAYING) {
-        if (IsKeyPressed(KEY_P)) ChangeState(PAUSED);
+    else if (gameState == PLAYING) {
+        if (IsKeyPressed(KEY_P)) setGameState(PAUSED);
 
         if (IsKeyPressed(KEY_UP)) snake.SetDirection({0,-1});
         if (IsKeyPressed(KEY_DOWN)) snake.SetDirection({0,1});
@@ -62,21 +59,21 @@ void Game::HandleInput() {
         if (IsKeyPressed(KEY_RIGHT)) snake.SetDirection({1,0});
     }
 
-    else if (state == PAUSED) {
-        if (IsKeyPressed(KEY_P)) ChangeState(PLAYING);
+    else if (gameState == PAUSED) {
+        if (IsKeyPressed(KEY_P)) setGameState(PLAYING);
     }
 
-    else if (state == GAMEOVER) {
+    else if (gameState == GAMEOVER) {
         if (IsKeyPressed(KEY_R)) {
             Reset();
-            ChangeState(PLAYING);
+            setGameState(PLAYING);
         }
-        if (IsKeyPressed(KEY_M)) ChangeState(MENU);
+        if (IsKeyPressed(KEY_M)) setGameState(MENU);
     }
 }
 
 void Game::Update() {
-    if (state != PLAYING) return;
+    if (gameState != PLAYING) return;
 
     moveTimer += GetFrameTime();
     if (moveTimer < moveDelay) return;
@@ -94,18 +91,18 @@ void Game::Update() {
     }
 
     // collision
-    if (snake.CheckSelfCollision() || snake.CheckWallCollision()) {
+    if (snake.IsSelfCollision() || snake.IsWallCollision()) {
         PlaySound(gameOverSound);
         if (score > highScore) {
             highScore = score;
             HighScore::Save(highScore);
         }
-        ChangeState(GAMEOVER);
+        setGameState(GAMEOVER);
     }
 }
 
 void Game::Draw() {
-    if (state == MENU) {
+    if (gameState == MENU) {
         DrawText("SNAKE GAME", 280, 100, 40, GREEN);
 
         Color startColor = (menuIndex == 0) ? YELLOW : WHITE;
@@ -125,18 +122,18 @@ void Game::Draw() {
         DrawText(diffText.c_str(), 280, 450, 20, GREEN);
     }
 
-    else if (state == PLAYING || state == PAUSED) {
+    else if (gameState == PLAYING || gameState == PAUSED) {
         snake.Draw();
         food.Draw();
 
         DrawText(("Score: " + std::to_string(score)).c_str(), 10, 10, 20, WHITE);
         DrawText(("High: " + std::to_string(highScore)).c_str(), 10, 40, 20, GRAY);
 
-        if (state == PAUSED)
+        if (gameState == PAUSED)
             DrawText("PAUSED (P to resume)", 250, 300, 30, YELLOW);
     }
 
-    else if (state == GAMEOVER) {
+    else if (gameState == GAMEOVER) {
         DrawText("GAME OVER", 280, 200, 40, RED);
         DrawText(("Score: " + std::to_string(score)).c_str(), 300, 260, 25, WHITE);
         DrawText("R: Restart  M: Menu", 260, 320, 20, GRAY);

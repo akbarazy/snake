@@ -2,7 +2,7 @@
 #include "headers/game.h"
 
 int main() {
-    InitWindow(800, 600, "Snake Game Advanced");
+    InitWindow(800, 600, "Snake - C++ & Raylib Game");
     InitAudioDevice();
     SetTargetFPS(60);
 

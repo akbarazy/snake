@@ -21,29 +21,23 @@ class Game {
 private:
     Snake snake;
     Food food;
-
-    GameState state;
+    GameState gameState;
     Difficulty difficulty;
-
     int score;
     int highScore;
-
     float moveTimer;
     float moveDelay;
-
     int menuIndex;
-
+    Sound menuSound;
     Sound eatSound;
     Sound gameOverSound;
 
 public:
     Game();
-
     void HandleInput();
     void Update();
     void Draw();
-
     void Reset();
-    void ChangeState(GameState newState);
-    void SetDifficulty(Difficulty diff);
+    void setGameState(GameState newGameState);
+    void SetDifficulty(Difficulty newDifficulty);
 };

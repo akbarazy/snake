@@ -9,14 +9,11 @@ private:
 
 public:
     Snake();
-
     void Move();
     void Grow();
     void Draw();
-
-    void SetDirection(Vector2 dir);
+    void SetDirection(Vector2 newDirection);
     Vector2 GetHead();
-
-    bool CheckSelfCollision();
-    bool CheckWallCollision();
+    bool IsSelfCollision();
+    bool IsWallCollision();
 };

@@ -8,8 +8,7 @@ void HighScore::Save(int score) {
 int HighScore::Load() {
     std::ifstream file("highscore.txt");
     int score = 0;
-    if (file.is_open()) {
-        file >> score;
-    }
+
+    if (file.is_open()) file >> score;
     return score;
 }
