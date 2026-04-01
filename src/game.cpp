@@ -49,6 +49,12 @@ void Game::HandleInput() {
         if (IsKeyPressed(KEY_ONE)) SetDifficulty(EASY);
         if (IsKeyPressed(KEY_TWO)) SetDifficulty(MEDIUM);
         if (IsKeyPressed(KEY_THREE)) SetDifficulty(HARD);
+
+        if (
+            IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) ||
+            IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_ONE) ||
+            IsKeyPressed(KEY_TWO) || IsKeyPressed(KEY_THREE)
+        ) PlaySound(menuSound);
     }
 
     else if (gameState == PLAYING) {
@@ -79,6 +85,7 @@ void Game::Update() {
     moveTimer += GetFrameTime();
     if (moveTimer < moveDelay) return;
 
+    if (snake.IsChangeDirection()) PlaySound(turnSound);
     moveTimer = 0;
     snake.Move();
 

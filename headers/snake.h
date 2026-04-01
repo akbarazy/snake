@@ -23,6 +23,7 @@ public:
     void SetDirection(Direction newDirection);
     Direction GetPrevDirection();
     Vector2 GetHead();
+    bool IsChangeDirection();
     bool IsSelfCollision();
     bool IsWallCollision();
 };

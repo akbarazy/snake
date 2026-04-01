@@ -29,6 +29,7 @@ private:
     float moveDelay;
     int menuIndex;
     Sound menuSound;
+    Sound turnSound;
     Sound eatSound;
     Sound gameOverSound;
 

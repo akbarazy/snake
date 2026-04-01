@@ -51,6 +51,11 @@ Vector2 Snake::GetHead() {
     return body[0];
 }
 
+bool Snake::IsChangeDirection() {
+    if (direction != prevDirection) return true;
+    return false;
+}
+
 bool Snake::IsSelfCollision() {
     for (int i = 1; i < body.size(); i++) {
         if (body[0].x == body[i].x && body[0].y == body[i].y)
