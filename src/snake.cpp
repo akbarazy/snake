@@ -2,7 +2,7 @@
 
 Snake::Snake() {
     body = {{10,10}, {9,10}, {8,10}};
-    direction = {1,0};
+    direction = prevDirection = RIGHT;
 }
 
 void Snake::Move() {
@@ -10,8 +10,22 @@ void Snake::Move() {
         body[i] = body[i-1];
     }
 
-    body[0].x += direction.x;
-    body[0].y += direction.y;
+    switch (direction) {
+        case UP: 
+            body[0].y--;
+            break;
+        case DOWN: 
+            body[0].y++;
+            break;
+        case LEFT: 
+            body[0].x--;
+            break;
+        case RIGHT: 
+            body[0].x++;
+            break;
+    }
+
+    prevDirection = direction;
 }
 
 void Snake::Grow() {
@@ -19,14 +33,18 @@ void Snake::Grow() {
 }
 
 void Snake::Draw() {
-    for(int i = body.size() - 1; i >= 0; i--) {
+    for (int i = body.size() - 1; i >= 0; i--) {
         int light = 255 - i * ((255 - 75) / body.size());
         DrawRectangle(body[i].x * 20, body[i].y * 20, 20, 20, {0, 121, 241, (unsigned char)light});
     }
 }
 
-void Snake::SetDirection(Vector2 newDirection) {
+void Snake::SetDirection(Direction newDirection) {
     direction = newDirection;
+}
+
+Direction Snake::GetPrevDirection() {
+    return prevDirection;
 }
 
 Vector2 Snake::GetHead() {
@@ -43,5 +61,5 @@ bool Snake::IsSelfCollision() {
 }
 
 bool Snake::IsWallCollision() {
-    return (body[0].x < 0 || body[0].x >= 40 || body[0].y < 0 || body[0].y >= 30);
+    return (body[0].x < 0 || body[0].x >= 35 || body[0].y < 0 || body[0].y >= 35);
 }

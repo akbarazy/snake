@@ -3,13 +3,14 @@
 
 Game::Game() {
     gameState = MENU;
-    difficulty = MEDIUM;
+    SetDifficulty(MEDIUM);
     score = 0;
     menuIndex = 0;
     highScore = HighScore::Load();
+    menuSound = LoadSound("assets/button.wav");
+    turnSound = LoadSound("assets/turn.wav");
     eatSound = LoadSound("assets/eat.wav");
     gameOverSound = LoadSound("assets/gameover.wav");
-    SetDifficulty(MEDIUM);
 }
 
 void Game::SetDifficulty(Difficulty newDifficulty) {
@@ -53,10 +54,10 @@ void Game::HandleInput() {
     else if (gameState == PLAYING) {
         if (IsKeyPressed(KEY_P)) setGameState(PAUSED);
 
-        if (IsKeyPressed(KEY_UP)) snake.SetDirection({0,-1});
-        if (IsKeyPressed(KEY_DOWN)) snake.SetDirection({0,1});
-        if (IsKeyPressed(KEY_LEFT)) snake.SetDirection({-1,0});
-        if (IsKeyPressed(KEY_RIGHT)) snake.SetDirection({1,0});
+        if (IsKeyPressed(KEY_UP) && snake.GetPrevDirection() != DOWN) snake.SetDirection(UP);
+        if (IsKeyPressed(KEY_DOWN) && snake.GetPrevDirection() != UP) snake.SetDirection(DOWN);
+        if (IsKeyPressed(KEY_LEFT) && snake.GetPrevDirection() != RIGHT) snake.SetDirection(LEFT);
+        if (IsKeyPressed(KEY_RIGHT) && snake.GetPrevDirection() != LEFT) snake.SetDirection(RIGHT);
     }
 
     else if (gameState == PAUSED) {

@@ -2,17 +2,26 @@
 #include "raylib.h"
 #include <vector>
 
+enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+
 class Snake {
 private:
     std::vector<Vector2> body;
-    Vector2 direction;
+    Direction direction;
+    Direction prevDirection;
 
 public:
     Snake();
     void Move();
     void Grow();
     void Draw();
-    void SetDirection(Vector2 newDirection);
+    void SetDirection(Direction newDirection);
+    Direction GetPrevDirection();
     Vector2 GetHead();
     bool IsSelfCollision();
     bool IsWallCollision();

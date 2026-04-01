@@ -2,11 +2,11 @@
 
 void Food::GeneratePosition() {
     position = {
-        (float)GetRandomValue(0, 39),
-        (float)GetRandomValue(0, 29)
+        (float)GetRandomValue(0, 34),
+        (float)GetRandomValue(0, 34)
     };
 }
 
 void Food::Draw() {
-    DrawRectangle(position.x * 20, position.y * 20, 20, 20, RED);
+    DrawCircle(position.x * 20 + 10, position.y * 20 + 10, 10, RED);
 }
