@@ -1,7 +1,7 @@
 #include "../headers/snake.h"
 
 Snake::Snake() {
-    body = {{12, 18}, {11, 18}, {10, 18}, {9, 18}, {8, 18}};
+    body = {{12, 17}, {11, 17}, {10, 17}, {9, 17}, {8, 17}};
     leftEye = {10, 3};
     rightEye = {10, 13};
     direction = prevDirection = RIGHT;
@@ -48,11 +48,11 @@ void Snake::Grow() {
 void Snake::Draw() {
     for (int i = body.size() - 1; i >= 0; i--) {
         int light = 255 - i * ((255 - 75) / body.size());
-        DrawRectangle(body[i].x * 20, body[i].y * 20, 20, 20, {0, 121, 241, (unsigned char)light});
+        DrawRectangle(body[i].x * 20 + 20, body[i].y * 20 + 40, 20, 20, {0, 121, 241, (unsigned char)light});
     
         if(i == 0) {
-            DrawRectangle(body[0].x * 20 + leftEye.x, body[0].y * 20 + leftEye.y, 4, 4, RAYWHITE);
-            DrawRectangle( body[0].x * 20 + rightEye.x, body[0].y * 20 + rightEye.y, 4, 4, RAYWHITE);
+            DrawRectangle(body[0].x * 20 + 20 + leftEye.x, body[0].y * 20  + 40 + leftEye.y, 4, 4, RAYWHITE);
+            DrawRectangle( body[0].x * 20 + 20 + rightEye.x, body[0].y * 20  + 40 + rightEye.y, 4, 4, RAYWHITE);
         }
     }
 }
@@ -83,7 +83,6 @@ bool Snake::IsSelfCollision() {
         if (body[0].x == body[i].x && body[0].y == body[i].y)
             return true;
     }
-
     return false;
 }
 
