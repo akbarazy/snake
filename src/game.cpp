@@ -4,6 +4,7 @@
 Game::Game() {
     gameState = MENU;
     SetDifficulty(MEDIUM);
+    maxFood = 5;
     score = 0;
     menuIndex = 0;
     highScore = HighScore::Load();
@@ -23,7 +24,14 @@ void Game::SetDifficulty(Difficulty newDifficulty) {
 
 void Game::Reset() {
     snake = Snake();
-    food.GeneratePosition();
+    foods.clear();
+
+    for (int i = 0; i < maxFood; i++) {
+        Food food;
+        food.GeneratePosition();
+        foods.push_back(food);
+    }
+
     score = 0;
     moveTimer = 0;
 }
@@ -58,7 +66,10 @@ void Game::HandleInput() {
     }
 
     else if (gameState == PLAYING) {
-        if (IsKeyPressed(KEY_P)) setGameState(PAUSED);
+        if (IsKeyPressed(KEY_P)) {
+            setGameState(PAUSED);
+            PlaySound(menuSound);
+        }
 
         if (IsKeyPressed(KEY_UP) && snake.GetPrevDirection() != DOWN) snake.SetDirection(UP);
         if (IsKeyPressed(KEY_DOWN) && snake.GetPrevDirection() != UP) snake.SetDirection(DOWN);
@@ -67,7 +78,10 @@ void Game::HandleInput() {
     }
 
     else if (gameState == PAUSED) {
-        if (IsKeyPressed(KEY_P)) setGameState(PLAYING);
+        if (IsKeyPressed(KEY_P)) {
+            setGameState(PLAYING);
+            PlaySound(menuSound);
+        }
     }
 
     else if (gameState == GAMEOVER) {
@@ -76,6 +90,9 @@ void Game::HandleInput() {
             setGameState(PLAYING);
         }
         if (IsKeyPressed(KEY_M)) setGameState(MENU);
+
+        if (IsKeyPressed(KEY_R) || IsKeyPressed(KEY_M)) 
+            PlaySound(menuSound);
     }
 }
 
@@ -89,23 +106,25 @@ void Game::Update() {
     moveTimer = 0;
     snake.Move();
 
-    // makan
-    if (snake.GetHead().x == food.position.x &&
-    snake.GetHead().y == food.position.y) {
-        snake.Grow();
-        score++;
-        PlaySound(eatSound);
-        food.GeneratePosition();
-    }
-
-    // collision
-    if (snake.IsSelfCollision() || snake.IsWallCollision()) {
-        PlaySound(gameOverSound);
-        if (score > highScore) {
-            highScore = score;
-            HighScore::Save(highScore);
+    for (auto &food : foods) {
+        if (
+            snake.GetHead().x == food.position.x &&
+            snake.GetHead().y == food.position.y
+        ) {
+            snake.Grow();
+            score++;
+            PlaySound(eatSound);
+            food.GeneratePosition();
         }
-        setGameState(GAMEOVER);
+
+        if (snake.IsSelfCollision() || snake.IsWallCollision()) {
+            PlaySound(gameOverSound);
+            if (score > highScore) {
+                highScore = score;
+                HighScore::Save(highScore);
+            }
+            setGameState(GAMEOVER);
+        }
     }
 }
 
@@ -131,11 +150,26 @@ void Game::Draw() {
     }
 
     else if (gameState == PLAYING || gameState == PAUSED) {
-        snake.Draw();
-        food.Draw();
+        for(int x = 0; x < 35; x++) {
+            for(int y = 0; y < 35; y++) {
+                Color tileColor = ((x + y) % 2 == 0) ?
+                    Color{150, 195, 65, 255} :
+                    Color{170, 215, 81, 255};
 
-        DrawText(("Score: " + std::to_string(score)).c_str(), 10, 10, 20, WHITE);
-        DrawText(("High: " + std::to_string(highScore)).c_str(), 10, 40, 20, GRAY);
+                DrawRectangle(
+                    x * 20 + 20, y * 20 + 40,
+                    20, 20, tileColor
+                );
+            }
+        }
+
+        snake.Draw();
+        for (auto &food : foods) {
+            food.Draw();
+        }
+
+        DrawText(("Score: " + std::to_string(score)).c_str(), 20, 10, 20, WHITE);
+        DrawText(("High: " + std::to_string(highScore)).c_str(), 140, 10, 20, GRAY);
 
         if (gameState == PAUSED)
             DrawText("PAUSED (P to resume)", 250, 300, 30, YELLOW);

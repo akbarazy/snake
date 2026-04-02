@@ -1,7 +1,9 @@
 #include "../headers/snake.h"
 
 Snake::Snake() {
-    body = {{10,10}, {9,10}, {8,10}};
+    body = {{10, 18}, {9, 18}, {8, 18}, {7, 18}, {6, 18}};
+    leftEye = {10, 3};
+    rightEye = {10, 13};
     direction = prevDirection = RIGHT;
 }
 
@@ -13,15 +15,26 @@ void Snake::Move() {
     switch (direction) {
         case UP: 
             body[0].y--;
+            leftEye = {3, 5};
+            rightEye = {13, 5};
             break;
+
         case DOWN: 
             body[0].y++;
+            leftEye = {3, 10};
+            rightEye = {13, 10};
             break;
+
         case LEFT: 
             body[0].x--;
+            leftEye = {5, 3};
+            rightEye = {5, 13};
             break;
+
         case RIGHT: 
             body[0].x++;
+            leftEye = {10, 3};
+            rightEye = {10, 13};
             break;
     }
 
@@ -36,6 +49,19 @@ void Snake::Draw() {
     for (int i = body.size() - 1; i >= 0; i--) {
         int light = 255 - i * ((255 - 75) / body.size());
         DrawRectangle(body[i].x * 20, body[i].y * 20, 20, 20, {0, 121, 241, (unsigned char)light});
+    
+        if(i == 0) {
+            DrawRectangle(
+                body[0].x * 20 + leftEye.x,
+                body[0].y * 20 + leftEye.y,
+                4, 4, RAYWHITE
+            );
+            DrawRectangle(
+                body[0].x * 20 + rightEye.x,
+                body[0].y * 20 + rightEye.y,
+                4, 4, RAYWHITE
+            );
+        }
     }
 }
 
@@ -57,7 +83,7 @@ bool Snake::IsChangeDirection() {
 }
 
 bool Snake::IsSelfCollision() {
-    for (int i = 1; i < body.size(); i++) {
+    for (size_t i = 1; i < body.size(); i++) {
         if (body[0].x == body[i].x && body[0].y == body[i].y)
             return true;
     }

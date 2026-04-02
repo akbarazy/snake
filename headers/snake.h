@@ -12,6 +12,8 @@ enum Direction {
 class Snake {
 private:
     std::vector<Vector2> body;
+    Vector2 leftEye;
+    Vector2 rightEye;
     Direction direction;
     Direction prevDirection;
 

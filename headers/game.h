@@ -20,9 +20,10 @@ enum Difficulty {
 class Game {
 private:
     Snake snake;
-    Food food;
+    std::vector<Food> foods;
     GameState gameState;
     Difficulty difficulty;
+    int maxFood;
     int score;
     int highScore;
     float moveTimer;
