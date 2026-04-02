@@ -51,16 +51,8 @@ void Snake::Draw() {
         DrawRectangle(body[i].x * 20, body[i].y * 20, 20, 20, {0, 121, 241, (unsigned char)light});
     
         if(i == 0) {
-            DrawRectangle(
-                body[0].x * 20 + leftEye.x,
-                body[0].y * 20 + leftEye.y,
-                4, 4, RAYWHITE
-            );
-            DrawRectangle(
-                body[0].x * 20 + rightEye.x,
-                body[0].y * 20 + rightEye.y,
-                4, 4, RAYWHITE
-            );
+            DrawRectangle(body[0].x * 20 + leftEye.x, body[0].y * 20 + leftEye.y, 4, 4, RAYWHITE);
+            DrawRectangle( body[0].x * 20 + rightEye.x, body[0].y * 20 + rightEye.y, 4, 4, RAYWHITE);
         }
     }
 }
@@ -75,6 +67,10 @@ Direction Snake::GetPrevDirection() {
 
 Vector2 Snake::GetHead() {
     return body[0];
+}
+
+const std::vector<Vector2>& Snake::GetBody() const {
+    return body;
 }
 
 bool Snake::IsChangeDirection() {

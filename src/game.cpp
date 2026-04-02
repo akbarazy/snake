@@ -26,11 +26,11 @@ void Game::Reset() {
     snake = Snake();
     foods.clear();
     foods = {
-        Food({24, 18}),
-        Food({21, 15}),
-        Food({27, 15}),
-        Food({21, 21}),
-        Food({27, 21})
+        Food({24, 17}),
+        Food({21, 14}),
+        Food({27, 14}),
+        Food({21, 20}),
+        Food({27, 20})
     };
     score = 0;
     moveTimer = 0;
@@ -114,7 +114,7 @@ void Game::Update() {
             snake.Grow();
             score++;
             PlaySound(eatSound);
-            food.GeneratePosition();
+            food.GeneratePosition(snake, foods);
         }
 
         if (snake.IsSelfCollision() || snake.IsWallCollision()) {

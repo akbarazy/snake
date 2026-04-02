@@ -25,6 +25,7 @@ public:
     void SetDirection(Direction newDirection);
     Direction GetPrevDirection();
     Vector2 GetHead();
+    const std::vector<Vector2> &GetBody() const;
     bool IsChangeDirection();
     bool IsSelfCollision();
     bool IsWallCollision();
