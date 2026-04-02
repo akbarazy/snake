@@ -25,13 +25,13 @@ void Game::SetDifficulty(Difficulty newDifficulty) {
 void Game::Reset() {
     snake = Snake();
     foods.clear();
-
-    for (int i = 0; i < maxFood; i++) {
-        Food food;
-        food.GeneratePosition();
-        foods.push_back(food);
-    }
-
+    foods = {
+        Food({24, 18}),
+        Food({21, 15}),
+        Food({27, 15}),
+        Food({21, 21}),
+        Food({27, 21})
+    };
     score = 0;
     moveTimer = 0;
 }

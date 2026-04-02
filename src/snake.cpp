@@ -1,7 +1,7 @@
 #include "../headers/snake.h"
 
 Snake::Snake() {
-    body = {{10, 18}, {9, 18}, {8, 18}, {7, 18}, {6, 18}};
+    body = {{12, 18}, {11, 18}, {10, 18}, {9, 18}, {8, 18}};
     leftEye = {10, 3};
     rightEye = {10, 13};
     direction = prevDirection = RIGHT;

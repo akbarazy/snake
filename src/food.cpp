@@ -1,5 +1,9 @@
 #include "../headers/food.h"
 
+Food::Food(Vector2 newPosition) {
+    position = newPosition;
+}
+
 void Food::GeneratePosition() {
     position = {
         (float)GetRandomValue(0, 34),
