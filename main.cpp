@@ -13,7 +13,7 @@ int main() {
         game.Update();
 
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(LIGHTGRAY);
         game.Draw();
         EndDrawing();
     }

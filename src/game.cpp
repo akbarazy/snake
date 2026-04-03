@@ -85,13 +85,19 @@ void Game::HandleInput() {
     }
 
     else if (gameState == GAMEOVER) {
-        if (IsKeyPressed(KEY_R)) {
-            Reset();
-            setGameState(PLAYING);
-        }
-        if (IsKeyPressed(KEY_M)) setGameState(MENU);
+        if (IsKeyPressed(KEY_RIGHT)) menuIndex = (menuIndex + 1) % 2;
+        if (IsKeyPressed(KEY_LEFT)) menuIndex = (menuIndex - 1 + 2) % 2;
 
-        if (IsKeyPressed(KEY_R) || IsKeyPressed(KEY_M)) 
+        if (IsKeyPressed(KEY_ENTER)) {
+            if (menuIndex == 0) {
+                Reset();
+                setGameState(PLAYING);
+            } else {
+                setGameState(MENU);
+            }
+        }
+
+        if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_ENTER)) 
             PlaySound(menuSound);
     }
 }
@@ -124,29 +130,110 @@ void Game::Update() {
                 HighScore::Save(highScore);
             }
             setGameState(GAMEOVER);
+            menuIndex = 0;
         }
     }
 }
 
 void Game::Draw() {
     if (gameState == MENU) {
-        DrawText("SNAKE GAME", 280, 100, 40, GREEN);
+        int screenWidth = GetScreenWidth();
+        int screenHeight = GetScreenHeight();
 
-        Color startColor = (menuIndex == 0) ? YELLOW : WHITE;
-        Color exitColor = (menuIndex == 1) ? YELLOW : WHITE;
+        int titleSize = 50;
+        int activeSize = 30;
+        int normalSize = 20;
+        int menuSize = 30;
 
-        DrawText("Start Game", 320, 250, 30, startColor);
-        DrawText("Exit", 350, 300, 30, exitColor);
+        int spacing = 35;
 
-        DrawText("1: Easy  2: Medium  3: Hard", 230, 400, 20, GRAY);
+        int totalHeight =
+            titleSize +
+            spacing +
+            activeSize +
+            spacing +
+            menuSize +
+            10 +
+            menuSize;
 
-        std::string diffText;
+        int startY = (screenHeight - totalHeight) / 2 - 35;
 
-        if (difficulty == EASY) diffText = "Difficulty: EASY";
-        else if (difficulty == MEDIUM) diffText = "Difficulty: MEDIUM";
-        else diffText = "Difficulty: HARD";
+        const char* title = "SNAKE GAME";
+        int titleWidth = MeasureText(title, titleSize);
 
-        DrawText(diffText.c_str(), 280, 450, 20, GREEN);
+        DrawText(title,
+                (screenWidth - titleWidth) / 2,
+                startY,
+                titleSize,
+                BLUE);
+
+        int centerX = screenWidth / 2;
+        int diffY = startY + titleSize + spacing;
+
+        const char *activeText;
+        const char *leftText;
+        const char *rightText;
+
+        switch (difficulty) {
+            case EASY:
+                activeText = "EASY";
+                leftText   = "HARD";
+                rightText  = "MEDIUM";
+                break;
+            case MEDIUM:
+                activeText = "MEDIUM";
+                leftText   = "EASY";
+                rightText  = "HARD";
+                break;
+            case HARD:
+                activeText = "HARD";
+                leftText   = "MEDIUM";
+                rightText  = "EASY";
+                break;
+        }
+
+        int activeWidth = MeasureText(activeText, activeSize);
+        int leftWidth   = MeasureText(leftText, normalSize);
+
+        DrawText(activeText,
+                centerX - activeWidth / 2,
+                diffY,
+                activeSize,
+                BLUE);
+
+        DrawText(leftText,
+                centerX - activeWidth / 2 - leftWidth - 20,
+                diffY + (activeSize - normalSize) / 2,
+                normalSize,
+                BLACK);
+
+        DrawText(rightText,
+                centerX + activeWidth / 2 + 20,
+                diffY + (activeSize - normalSize) / 2,
+                normalSize,
+                BLACK);
+
+        int menuY = diffY + activeSize + spacing;
+
+        const char* startText = "Start Game";
+        int startWidth = MeasureText(startText, menuSize);
+        Color startColor = (menuIndex == 0) ? BLUE : BLACK;
+
+        DrawText(startText,
+                (screenWidth - startWidth) / 2,
+                menuY,
+                menuSize,
+                startColor);
+
+        const char* exitText = "Exit";
+        int exitWidth = MeasureText(exitText, menuSize);
+        Color exitColor = (menuIndex == 1) ? BLUE : BLACK;
+
+        DrawText(exitText,
+                (screenWidth - exitWidth) / 2,
+                menuY + menuSize + 10,
+                menuSize,
+                exitColor);
     }
 
     else if (gameState == PLAYING || gameState == PAUSED) {
@@ -168,16 +255,29 @@ void Game::Draw() {
             food.Draw();
         }
 
-        DrawText(("Score: " + std::to_string(score)).c_str(), 20, 10, 20, WHITE);
-        DrawText(("High: " + std::to_string(highScore)).c_str(), 140, 10, 20, GRAY);
+        DrawText(("Score: " + std::to_string(score)).c_str(), 20, 10, 20, BLACK);
+        DrawText(("High: " + std::to_string(highScore)).c_str(), 140, 10, 20, BLACK);
 
-        if (gameState == PAUSED)
-            DrawText("PAUSED (P to resume)", 250, 300, 30, YELLOW);
+        if (gameState == PAUSED) {
+            int positionX = (GetScreenWidth() - MeasureText("PAUSED", 50)) / 2;
+            int positionY = (GetScreenHeight() - 50) / 2 - 20;
+            DrawRectangle(positionX - 10, positionY - 7, MeasureText("PAUSED", 50) + 20, 60, LIGHTGRAY);
+            DrawText("PAUSED", positionX, positionY, 50, BLACK);
+        }
     }
 
     else if (gameState == GAMEOVER) {
-        DrawText("GAME OVER", 280, 200, 40, RED);
-        DrawText(("Score: " + std::to_string(score)).c_str(), 300, 260, 25, WHITE);
-        DrawText("R: Restart  M: Menu", 260, 320, 20, GRAY);
+        int startY = (GetScreenHeight() - 50 - 60 - 70) / 2 - 15;
+        int positionX = (GetScreenWidth() - MeasureText("GAME OVER", 50)) / 2;
+        DrawText("GAME OVER", positionX, startY, 50, RED);
+        
+        positionX = (GetScreenWidth() - MeasureText(("Score: " + std::to_string(score)).c_str(), 30)) / 2;
+        DrawText(("Score: " + std::to_string(score)).c_str(), positionX, startY + 75, 30, BLACK);
+
+        positionX = (GetScreenWidth() - MeasureText("Restart", 30)) / 2;
+        DrawText("Restart", positionX - 51, startY + 130, 30, menuIndex == 0 ? BLUE : BLACK);
+
+        positionX = (GetScreenWidth() - MeasureText("Menu", 30)) / 2;
+        DrawText("Menu", positionX + 74, startY + 130, 30, menuIndex == 1 ? BLUE : BLACK);
     }
 }

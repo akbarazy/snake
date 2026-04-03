@@ -3,6 +3,7 @@
 #include "food.h"
 #include "highscore.h"
 #include "raylib.h"
+#include "text.h"
 
 enum GameState {
     MENU,
